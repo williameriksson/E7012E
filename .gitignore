@@ -1,0 +1,8 @@
+.metadata/
+lineFollower/.settings
+lineFollower/Debug
+lineFollower/Drivers
+lineFollower/*.cproject
+lineFollower/*.launch
+lineFollower/*.ld
+lineFollower/.project
