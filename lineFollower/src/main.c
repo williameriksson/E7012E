@@ -11,8 +11,8 @@ int main(void)
   *  SCB->VTOR register.  
   *  E.g.  SCB->VTOR = 0x20000000;  
   */
-//	initServoControl();
-//	initUserButton();
+	initServoControl();
+	initUserButton();
 	/* Infinite loop */
 	while (1) {
 

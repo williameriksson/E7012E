@@ -1,9 +1,9 @@
 #include "steeringControl.h"
 
-const int minPW = 12000; //1 ms pulse width
-const int neutralPW = 15000; //1.5ms pulse width
-const int maxPW = 18000; //2 ms pulse width
-const float maxSteeringAngle = 45.0; //the angular span between center and max right/left steering. TODO:figure this out
+const int steeringminPW = 13000; //1 ms pulse width
+const int steeringneutralPW = 15000; //1.5ms pulse width
+const int steeringmaxPW = 17000; //2 ms pulse width
+const float maxSteeringAngle = 30.0; //the angular span between center and max right/left steering. TODO:figure this out
 
 void initServoControl() {
 	//Init for servo control on pin PB3 (TIM2 ch2)
@@ -14,7 +14,7 @@ void initServoControl() {
 	__disable_irq();
 	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; //enables TIM2 timer
 	TIM2->DIER |= TIM_DIER_UIE; //enables update interrupts
-	TIM2->PSC = 10-1; //sets prescalar -> clock freq 1MHz
+	TIM2->PSC = 10-1; //sets prescalar -> clock freq 10MHz
 	TIM2->ARR = 200000-1;
 	TIM2->CCR2 = 200000 - 15000 - 1; // CCR2 timer (for servo this determines angle (1-2 ms pulse width))
 	TIM2->DIER |= TIM_DIER_CC2IE; //sets the CC1IE flag for interrupt enable
@@ -30,17 +30,18 @@ void initServoControl() {
 }
 
 void setSteering(float angle) {
+
 	if(angle <= -maxSteeringAngle) {
-		TIM2->CCR2 = 20000 - minPW - 1;
+		TIM2->CCR2 = 200000 - steeringminPW - 1;
 	}
 	else if(angle >= maxSteeringAngle) {
-		TIM2->CCR2 = 20000 - maxPW - 1;
+		TIM2->CCR2 = 200000 - steeringmaxPW - 1;
 	}
 	else {
 		//sets the PWM signal to same proportions as angle is to maxSteeringAngle.
 		float turnPercentage = angle / maxSteeringAngle;
-		int spanPW = (maxPW - minPW) / 2;
-		int turnPW = neutralPW + (int)(spanPW * turnPercentage);
-		TIM2->CCR2 = 20000 - turnPW - 1;
+		int spanPW = (steeringmaxPW - steeringminPW) / 2;
+		int turnPW = steeringneutralPW + (int)(spanPW * turnPercentage);
+		TIM2->CCR2 = 200000 - turnPW - 1;
 	}
 }

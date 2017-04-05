@@ -14,13 +14,19 @@ void initUserButton() {
 }
 
 int toggle = 0;
+float yeboii = -30.0f;
 
 void EXTI15_10_IRQHandler(void) {
 	EXTI->PR |= EXTI_PR_PR13;
 	if(toggle) {
-//		setSteering(30.0);
+		yeboii += 5.0f;
+		setSteering(yeboii);
+//		TIM2->CCR2 = 200000 - 14000 - 1;
 	}
 	else {
-//		setSteering(-30.0);
+		setSteering(yeboii);
+//		TIM2->CCR2 = 200000 - 16000 - 1;
+		toggle = 1;
 	}
+//	toggle = !toggle;
 }
