@@ -1,5 +1,4 @@
-#include "stm32f4xx.h"
-
+#include "main.h"
 
 int main(void)
 {
@@ -12,10 +11,10 @@ int main(void)
   *  SCB->VTOR register.  
   *  E.g.  SCB->VTOR = 0x20000000;  
   */
+//	initServoControl();
+//	initUserButton();
+	/* Infinite loop */
+	while (1) {
 
-
-  /* Infinite loop */
-  while (1) {
-
-  }
+	}
 }
