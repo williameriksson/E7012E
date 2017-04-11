@@ -6,3 +6,4 @@ lineFollower/*.cproject
 lineFollower/*.launch
 lineFollower/*.ld
 lineFollower/.project
+lineFollower/src/syscalls.c
