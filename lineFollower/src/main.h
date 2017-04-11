@@ -2,8 +2,9 @@
 #define MAIN_H_
 
 #include "stm32f4xx.h"
-#include "userButton.h"
-#include "steeringControl.h"
-#include "motorControl.h"
+#include "UI/userButton.h"
+#include "SteeringControl/steeringControl.h"
+#include "MotorControl/motorControl.h"
+#include "LineSensor/lineSensorReader.h"
 
 #endif /* MAIN_H_ */

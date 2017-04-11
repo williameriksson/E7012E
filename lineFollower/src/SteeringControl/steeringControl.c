@@ -1,8 +1,8 @@
 #include "steeringControl.h"
 
-const int steeringminPW = 13000; //1 ms pulse width
+const int steeringminPW = 13000; //1.3 ms pulse width
 const int steeringneutralPW = 15000; //1.5ms pulse width
-const int steeringmaxPW = 17000; //2 ms pulse width
+const int steeringmaxPW = 17000; //1.7 ms pulse width
 const float maxSteeringAngle = 30.0; //the angular span between center and max right/left steering. TODO:figure this out
 
 void initServoControl() {
@@ -30,18 +30,21 @@ void initServoControl() {
 }
 
 void setSteering(float angle) {
-
+	int pulseWidth;
 	if(angle <= -maxSteeringAngle) {
-		TIM2->CCR2 = 200000 - steeringminPW - 1;
+//		TIM2->CCR2 = 200000 - steeringminPW - 1;
+		pulseWidth = steeringminPW;
 	}
 	else if(angle >= maxSteeringAngle) {
-		TIM2->CCR2 = 200000 - steeringmaxPW - 1;
+//		TIM2->CCR2 = 200000 - steeringmaxPW - 1;
+		pulseWidth = steeringmaxPW;
 	}
 	else {
 		//sets the PWM signal to same proportions as angle is to maxSteeringAngle.
 		float turnPercentage = angle / maxSteeringAngle;
 		int spanPW = (steeringmaxPW - steeringminPW) / 2;
-		int turnPW = steeringneutralPW + (int)(spanPW * turnPercentage);
-		TIM2->CCR2 = 200000 - turnPW - 1;
+		pulseWidth = steeringneutralPW + (int)(spanPW * turnPercentage);
+//		TIM2->CCR2 = 200000 - turnPW - 1;
 	}
+	TIM2->CCR2 = 200000 - pulseWidth - 1;
 }
