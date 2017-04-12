@@ -3,6 +3,7 @@
 
 #include "stm32f4xx.h"
 #include "../SteeringControl/steeringControl.h"
+#include "../MotorControl/motorControl.h"
 
 void initUserButton(void);
 

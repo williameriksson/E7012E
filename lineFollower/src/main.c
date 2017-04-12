@@ -12,8 +12,8 @@ void lab2blinky() {
 	__disable_irq();
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; //enables TIM2 timer peripherals
 	TIM3->DIER |= TIM_DIER_UIE; //enables update interrupts
-	TIM3->PSC = 100-1; //sets prescalar -> clock freq 1MHz
-	TIM3->ARR = 100000-1; //10Hz freq (cycle time)
+	TIM3->PSC = 1000-1; //sets prescalar -> clock freq 100 kHz
+	TIM3->ARR = 1250-1; //10Hz freq (cycle time)
 	TIM3->DIER |= TIM_DIER_UIE; //enables interrupt on ARR overflow
 	TIM3->CR1 |= TIM_CR1_CEN; //enables the timer.
 	__enable_irq();
@@ -33,16 +33,7 @@ void TIM3_IRQHandler(void) {
 
 int main(void)
 {
-  /**
-  *  IMPORTANT NOTE!
-  *  The symbol VECT_TAB_SRAM needs to be defined when building the project
-  *  if code has been located to RAM and interrupts are used. 
-  *  Otherwise the interrupt table located in flash will be used.
-  *  See also the <system_*.c> file and how the SystemInit() function updates 
-  *  SCB->VTOR register.  
-  *  E.g.  SCB->VTOR = 0x20000000;  
-  */
-//	initServoControl();
+	initServoControl();
 	initUserButton();
 	initMotorControl();
 //	lab2blinky();

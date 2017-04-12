@@ -15,31 +15,24 @@ void initUserButton() {
 
 //Variables for testing
 int toggle = 0;
-float yeboii = -30.0f;
+float tempSteer = -30.0f;
+float tempSpeed = 0.0f;
 int testPW = 15000;
-int lolCount = 0;
+int Count = 0;
 //End Testing
 
 void EXTI15_10_IRQHandler(void) {
 	EXTI->PR |= EXTI_PR_PR13;
-	lolCount ++;
+
 	if(toggle) {
-//		yeboii += 5.0f;
-//		setSteering(yeboii);
-		if(lolCount < 11) {
-			testPW += 100;
-			TIM2->CCR3 = 200000 - testPW - 1;
-		}
-		else {
-			TIM2->CCR3 = 200000 - 13500 - 1;
-			lolCount = 0;
-			testPW = 15000;
-		}
+		setSteering(15.0);
+		toggle = 0;
 	}
 	else {
-//		setSteering(yeboii);
-		TIM2->CCR3 = 200000 - testPW - 1;
+		setSteering(-15.0);
 		toggle = 1;
 	}
-//	toggle = !toggle;
+
+//	tempSpeed += 0.5f;
+//	setSpeed(tempSpeed);
 }
