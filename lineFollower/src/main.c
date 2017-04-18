@@ -4,8 +4,8 @@ int main(void)
 {
 	initServoControl();
 	initHallSensor();
-//	initUserButton();
-//  initMotorControl();
+	initUserButton();
+    initMotorControl();
 //	lab2blinky();
 
 	while (1) {

@@ -25,11 +25,11 @@ void EXTI15_10_IRQHandler(void) {
 	EXTI->PR |= EXTI_PR_PR13;
 
 	if(toggle) {
-		setSteering(15.0);
+		setSpeed(4.0);
 		toggle = 0;
 	}
 	else {
-		setSteering(-15.0);
+		setSpeed(0.0);
 		toggle = 1;
 	}
 

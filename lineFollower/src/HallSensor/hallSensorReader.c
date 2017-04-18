@@ -14,7 +14,6 @@ void initHallSensor() {
 	circularBufferInit(&hallBuffer, 0, 4);
 
 	speed = 0;
-	direction = 1;
 	fillBuffer(&directionBuffer, 1);
 	fillBuffer(&hallBuffer, 65000);
 
