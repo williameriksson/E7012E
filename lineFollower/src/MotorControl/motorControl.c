@@ -1,5 +1,5 @@
 #include "motorControl.h"
-#include "Controller/PIDcontroller.h"
+
 
 const int minPW = 1000; //1 ms pulse width
 const int neutralPW = 1500; //1.5ms pulse width
@@ -29,7 +29,7 @@ void initMotorControl() {
 	TIM3->CR1 |= TIM_CR1_CEN; //enables the Timer.
 
 	//Controller and timer below
-	initController(&motorPID, 0.0f, 1.0f, 0.0f, 0.0f, looptime);
+	initController(&motorPID, 0.1f, 5.0f, 0.00f, 0.0f, looptime);
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
 	TIM4->PSC = 10000-1; //sets prescalar -> clock freq 10 kHz
@@ -66,20 +66,20 @@ void setSpeed(float mps) {
 void accelerate(float amount) {
 	int pwAdjust = (int)amount;
 	int currentPW = 20000 - TIM3->CCR3 + 1;
-	if(currentPW + pwAdjust < minPW) {
-		TIM3->CCR3 = 20000 - minPW - 1;
+	if(currentPW + pwAdjust < neutralPW) {
+		TIM3->CCR3 = 20000 - neutralPW - 1;
 	}
 	else if(currentPW + pwAdjust > maxPW) {
 		TIM3->CCR3 = 20000 - maxPW - 1;
 	}
 	else {
-		TIM3->CCR3 = 20000 - pwAdjust - 1;
+		TIM3->CCR3 = 20000 - (currentPW + pwAdjust) - 1;
 	}
+
 }
 
 void TIM4_IRQHandler(void) {
 	TIM4->SR &= ~0x1;
-	float tempshiet = 0.0f; //TODO: change to speed variable from hall sensor
-	float adjustment = runController(&motorPID, tempsheit);
+	float adjustment = runController(&motorPID, speed);
 	accelerate(adjustment);
 }

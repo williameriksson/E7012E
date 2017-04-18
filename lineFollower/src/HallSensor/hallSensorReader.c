@@ -4,7 +4,7 @@
 
 // Converts time diff (uS) between 2 magnets of the 8 magnet setup to meters per second
 //#define usToMpsFourM(t) ((2.0 * 3.141592 * 0.04) / 4) * 100000 / t
-#define usToMpsFourM(t) 100000000.0 / ((float)t * 4.0)
+#define usToMpsEightM(t) 3.25 * 2.0 * 3.141592 * 100.0 / ((float)t * 8.0)
 
 CircularBUFFER hallBuffer;
 CircularBUFFER directionBuffer;
@@ -84,7 +84,8 @@ void TIM1_TRG_COM_TIM11_IRQHandler () {
 		uint16_t diff = endTime - startTime;
 		pushBuffer(&hallBuffer, diff);
 		uint16_t filteredValue = getBufferAverage(&hallBuffer);
-		speed = (2.0f * 10000.0f) / (2.0f * (float)filteredValue);
+		//speed = (2.0f * 10000.0f) / (2.0f * (float)filteredValue);
+		speed = usToMpsEightM(filteredValue);
 		startTime = endTime;
 		TIM11->SR &= ~(TIM_SR_CC1IF); // Clear capture flag
 	}

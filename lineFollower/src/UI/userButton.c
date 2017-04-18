@@ -25,11 +25,11 @@ void EXTI15_10_IRQHandler(void) {
 	EXTI->PR |= EXTI_PR_PR13;
 
 	if(toggle) {
-		setSpeed(4.0);
+		setSpeed(1.5f);
 		toggle = 0;
 	}
 	else {
-		setSpeed(0.0);
+		setSpeed(0.5f);
 		toggle = 1;
 	}
 
