@@ -6,5 +6,6 @@
 #include "SteeringControl/steeringControl.h"
 #include "MotorControl/motorControl.h"
 #include "LineSensor/lineSensorReader.h"
+#include "HallSensor/hallSensorReader.h"
 
 #endif /* MAIN_H_ */
