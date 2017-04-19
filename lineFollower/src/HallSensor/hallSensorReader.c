@@ -7,14 +7,14 @@
 #define usToMpsEightM(t) 3.25 * 2.0 * 3.141592 * 100.0 / ((float)t * 8.0)
 
 CircularBUFFER hallBuffer;
-CircularBUFFER directionBuffer;
+//CircularBUFFER directionBuffer;
 
 void initHallSensor() {
 	__disable_irq();
 	circularBufferInit(&hallBuffer, 0, 4);
 
 	speed = 0;
-	fillBuffer(&directionBuffer, 1);
+	//fillBuffer(&directionBuffer, 1);
 	fillBuffer(&hallBuffer, 65000);
 
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; // Enable clock GPIOB
@@ -27,7 +27,7 @@ void initHallSensor() {
 //	TIM5->CR1 |= TIM_CR1_CEN; // Enable TIM5
 
 	RCC->APB2ENR |= RCC_APB2ENR_TIM11EN; // Enable clock for TIM11
-	TIM11->ARR = 0xFFFF; // Auto reload
+	TIM11->ARR = 10000; // Auto reload
 	TIM11->PSC = 10000 - 1; // Prescaler
 	TIM11->CCMR1 |= TIM_CCMR1_CC1S_0; // Configure channel CC1 as input, IC1 is mapped on TI1
 	// CCMR1 offers different filtering settings in the IC1F field, might wanna look that up.
@@ -35,7 +35,8 @@ void initHallSensor() {
 	TIM11->CCER |= TIM_CCER_CC1P; // Capture on falling edge
 	TIM11->CCER |= TIM_CCER_CC1E; // Enable capture
 	TIM11->DIER |= TIM_DIER_CC1IE; // Enable capture interrupt
-	//TIM11->DIER |= TIM_DIER_UIE;
+	TIM11->CR1 |= TIM_CR1_URS; // Only generate interrupt on over/underflow
+	TIM11->DIER |= TIM_DIER_UIE;
 	TIM11->CR1 |= TIM_CR1_CEN; // Enable TIM11
 	// Read captured value from TIM11->CCR1
 
@@ -65,8 +66,8 @@ void initHallSensor() {
 	__enable_irq(); //Enable global interrupts
 
 
-	//NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 15); // Set the priority, this should probably be changed..
-	//NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn ); // Enable the interrupt
+//	NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 15); // Set the priority, this should probably be changed..
+//	NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn ); // Enable the interrupt
 
 //
 //	NVIC_SetPriority(EXTI4_IRQn, 15); // Set the priority, this should probably be changed..
@@ -86,13 +87,19 @@ void TIM1_TRG_COM_TIM11_IRQHandler () {
 		uint16_t filteredValue = getBufferAverage(&hallBuffer);
 		//speed = (2.0f * 10000.0f) / (2.0f * (float)filteredValue);
 		speed = usToMpsEightM(filteredValue);
-		startTime = endTime;
+
+		TIM11->CNT = 0;
 		TIM11->SR &= ~(TIM_SR_CC1IF); // Clear capture flag
 	}
-//	else if (TIM11->SR & TIM_SR_UIF) {
-//		speed = 0.0;
-//		TIM11->SR &= ~(TIM_SR_UIF);
-//	}
-
-
+	else if (TIM11->SR & TIM_SR_UIF) {
+		for(uint8_t i = 0; i<hallBuffer.size; i++){
+			pushBuffer(&hallBuffer, 0);
+		}
+			speed = 0.0f;
+			TIM11->SR &= ~(TIM_SR_UIF);
+		}
 }
+
+
+
+

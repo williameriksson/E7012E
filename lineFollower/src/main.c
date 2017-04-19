@@ -2,7 +2,7 @@
 
 int main(void)
 {
-	initServoControl();
+//	initServoControl();
 	initHallSensor();
 	initUserButton();
     initMotorControl();
