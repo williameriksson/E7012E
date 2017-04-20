@@ -5,7 +5,7 @@ const int steeringneutralPW = 1500; //1.5ms pulse width
 const int steeringmaxPW = 1700; //1.7 ms pulse width
 const float maxSteeringAngle = 30.0; //the angular span between center and max right/left steering. TODO:figure this out
 
-void initServoControl() {
+void initSteeringControl() {
 	//Init for servo control on TIM 3 Ch 4 (PC9)
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //ensures clock on GPIOC is enabled
 	GPIOC->MODER |= GPIO_MODER_MODER9_1; //sets GPIOC mode to alternating function

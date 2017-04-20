@@ -1,11 +1,18 @@
 #include "lineSensorReader.h"
-//TODO: add code here.
 
 //linesensor takes input on port PB0 - PB8.
 LineSensorArray lsr;
 
+
 void initLineSensorReader() {
 	GPIOB->MODER &= ~(0x3FFFF); //sets MODER 0-8 to 00 (input mode) (sets PB0-PB8 for GPIO input mode)
+
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; //enables TIM2 timer
+	TIM2->DIER |= TIM_DIER_UIE; //enables update interrupts
+	TIM2->PSC = 10000-1; //sets prescalar -> clock freq 10 kHz
+	TIM2->ARR = 1000-1; //100Hz freq
+	TIM2->DIER |= TIM_DIER_UIE; //enables the global interrupts on TIM2 (on counter overflow)
+	TIM2->CR1 |= TIM_CR1_CEN; //enables the Timer.
 }
 
 void updateLineSensorArray() {
@@ -28,5 +35,8 @@ float getDistanceOffset() {
 	return (float)distanceFromCenter / (float)activeSensorsCount;
 }
 
-
+void TIM2_IRQHandler(void) {
+	TIM2->SR &= ~TIM_SR_UIF;
+	updateLineSensorArray();
+}
 

@@ -3,7 +3,8 @@
 
 #include "stm32f4xx.h"
 
-void initServoControl(void);
+void initSteeringControl(void);
 void setSteering(float);
+void runSteeringControl(void);
 
 #endif /* STEERINGCONTROL_H_ */

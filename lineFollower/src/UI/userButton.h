@@ -4,6 +4,7 @@
 #include "stm32f4xx.h"
 #include "../SteeringControl/steeringControl.h"
 #include "../MotorControl/motorControl.h"
+#include "../Controller/controlLoopHandler.h"
 
 void initUserButton(void);
 

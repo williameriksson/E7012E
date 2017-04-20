@@ -6,9 +6,6 @@ const int neutralPW = 1500; //1.5ms pulse width
 const int maxPW = 2000; //2 ms pulse width
 const float maxSpeed = 8.3f;
 
-PID motorPID;
-const int looptime = 100; //controllerloop in ms
-
 void initMotorControl() {
 	//Init for motor control on pin TIM 3 Ch 3 (PC8)
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //ensures clock on GPIOC is enabled
@@ -28,39 +25,7 @@ void initMotorControl() {
 	TIM3->CCER |= TIM_CCER_CC3E; //capture/compare ch3 enabled
 	TIM3->CR1 |= TIM_CR1_CEN; //enables the Timer.
 
-	//Controller and timer below
-	initController(&motorPID, 0.1f, 5.0f, 0.00f, 0.0f, looptime);
-	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
-	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
-	TIM4->PSC = 10000-1; //sets prescalar -> clock freq 10 kHz
-	TIM4->ARR = (looptime*10)-1; //10Hz freq
-	TIM4->DIER |= TIM_DIER_UIE;
-	TIM4->CR1 |= TIM_CR1_CEN; //enables the Timer.
-
 	__enable_irq();
-
-	NVIC_EnableIRQ(TIM4_IRQn); //enables the interrupt
-	NVIC_SetPriority(TIM4_IRQn, 22);
-}
-/*
- * Sets the pulsewidth of PWM controlling the motor to be same proportions as mps is to maxSpeed
- */
-//void setSpeed(float mps) {
-//	int pulseWidth;
-//	if(mps >= maxSpeed) {
-//		pulseWidth = minPW;
-//	}
-//	else {
-//		float speedPercentage = mps / maxSpeed;
-//		int spanPW = (maxPW - neutralPW);
-//		pulseWidth = neutralPW - (int)(spanPW * speedPercentage);
-//	}
-//	TIM3->CCR3 = 20000 - pulseWidth - 1;
-//}
-
-void setSpeed(float mps) {
-	changeReference(&motorPID, mps);
-	resetPIDError(&motorPID);
 }
 
 void accelerate(float amount) {
@@ -76,10 +41,4 @@ void accelerate(float amount) {
 		TIM3->CCR3 = 20000 - (currentPW + pwAdjust) - 1;
 	}
 
-}
-
-void TIM4_IRQHandler(void) {
-	TIM4->SR &= ~0x1;
-	float adjustment = runController(&motorPID, speed);
-	accelerate(adjustment);
 }
