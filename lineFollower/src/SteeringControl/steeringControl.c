@@ -27,6 +27,19 @@ void initSteeringControl() {
 	__enable_irq();
 
 }
+void adjustSteeringPWM(float amount) {
+	int pwAdjust = (int)amount;
+	int currentPW = 20000 - TIM3->CCR4 - 1;
+	if(currentPW + pwAdjust < steeringminPW) {
+		TIM3->CCR4 = 20000 - steeringminPW - 1;
+	}
+	else if(currentPW + pwAdjust > steeringmaxPW) {
+		TIM3->CCR4 = 20000 - steeringmaxPW - 1;
+	}
+	else {
+		TIM3->CCR4 = 20000 - (currentPW + pwAdjust) - 1;
+	}
+}
 
 void setSteering(float angle) {
 	int pulseWidth;

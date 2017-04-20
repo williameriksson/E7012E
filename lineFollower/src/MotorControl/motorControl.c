@@ -28,9 +28,9 @@ void initMotorControl() {
 	__enable_irq();
 }
 
-void accelerate(float amount) {
+void adjustMotorPWM(float amount) {
 	int pwAdjust = (int)amount;
-	int currentPW = 20000 - TIM3->CCR3 + 1;
+	int currentPW = 20000 - TIM3->CCR3 - 1;
 	if(currentPW + pwAdjust < neutralPW) {
 		TIM3->CCR3 = 20000 - neutralPW - 1;
 	}
@@ -40,5 +40,4 @@ void accelerate(float amount) {
 	else {
 		TIM3->CCR3 = 20000 - (currentPW + pwAdjust) - 1;
 	}
-
 }

@@ -11,6 +11,6 @@ typedef struct {
 
 void initLineSensorReader(void);
 void updateLineSensorArray();
-float updateDistanceOffset();
+float getDistanceOffset();
 
 #endif /* LINESENSORREADER_H_ */

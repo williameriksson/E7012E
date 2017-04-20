@@ -5,6 +5,7 @@
 
 void initSteeringControl(void);
 void setSteering(float);
-void runSteeringControl(void);
+void adjustSteeringPWM(float);
+
 
 #endif /* STEERINGCONTROL_H_ */
