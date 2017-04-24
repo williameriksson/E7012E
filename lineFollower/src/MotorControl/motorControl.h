@@ -6,6 +6,6 @@
 #include "HallSensor/hallSensorReader.h"
 
 void initMotorControl(void);
-void accelerate(float);
+void adjustMotorPWM(float);
 
 #endif /* MOTORCONTROL_H_ */

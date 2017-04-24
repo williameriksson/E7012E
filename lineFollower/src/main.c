@@ -2,9 +2,11 @@
 
 int main(void)
 {
+
 		initSteeringControl();
 //		initHallSensor();
 //		initUserButton();
+
 //  initMotorControl();
     initLineSensorReader();
     initControlLoopHandler();
