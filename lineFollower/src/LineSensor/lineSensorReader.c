@@ -17,7 +17,7 @@ void initLineSensorReader() {
 	__enable_irq();
 
 	NVIC_EnableIRQ(TIM2_IRQn); //enables the interrupt
-	NVIC_SetPriority(TIM2_IRQn, 22);
+	NVIC_SetPriority(TIM2_IRQn, 30);
 }
 
 void updateLineSensorArray() {
@@ -41,7 +41,7 @@ float getDistanceOffset() {
 		return (float)distanceFromCenter / (float)activeSensorsCount;
 	}
 	else {
-		return 0.0f;
+		return 5.0f;
 	}
 }
 

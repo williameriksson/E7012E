@@ -5,6 +5,7 @@
 #include "../SteeringControl/steeringControl.h"
 #include "../MotorControl/motorControl.h"
 #include "../LineSensor/lineSensorReader.h"
+#include "math.h"
 
 float DistanceTemp;
 float AdjustTemp;

@@ -1,7 +1,7 @@
 #include "controlLoopHandler.h"
 
 PID motorPID, steeringPID;
-const int looptime = 100; //controller loop in ms
+const int looptime = 50; //controller loop in ms
 
 void initControlLoopHandler() {
 	//Controller and timer below
@@ -9,8 +9,8 @@ void initControlLoopHandler() {
 	DistanceTemp = 0.0f;
 	AdjustTemp = 0.0f;
 
-	initController(&motorPID, 0.1f, 5.0f, 0.00f, 0.0f, looptime); //enables PID for motor
-	initController(&steeringPID, 0.0f, 5.0f, 0.00f, 0.0f, looptime); //enables PID for steering
+	initController(&motorPID, 0.5f, 2.5f, 0.00f, 0.0f, looptime); //enables PID for motor
+	initController(&steeringPID, 0.0f, 5.0f, 1.0f, 20.0f, looptime); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
@@ -34,13 +34,20 @@ void runMotorControl() {
 	float adjustment = runController(&motorPID, speed);
 	adjustMotorPWM(adjustment);
 }
-
+int previousDistance = 0;
 void runSteeringControl() {
 	float distanceFromLine = getDistanceOffset();
+	if(distanceFromLine > (float)LINESENSORARRAY_SIZE/2) {
+		//has driven off the line.
+		distanceFromLine = previousDistance/abs(previousDistance) * 5.0f;
+	}
+	else {
+		previousDistance = distanceFromLine;
+	}
 	float adjustment = runController(&steeringPID, distanceFromLine);
 	DistanceTemp = distanceFromLine;
 	AdjustTemp = adjustment;
-	adjustSteeringPWM(-adjustment);
+	adjustSteeringPWM(adjustment);
 }
 
 void TIM4_IRQHandler(void) {
