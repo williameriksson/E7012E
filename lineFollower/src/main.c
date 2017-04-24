@@ -2,10 +2,12 @@
 
 int main(void)
 {
-//	initServoControl();
-	initHallSensor();
-	initUserButton();
-    initMotorControl();
+		initSteeringControl();
+//		initHallSensor();
+//		initUserButton();
+//  initMotorControl();
+    initLineSensorReader();
+    initControlLoopHandler();
 //	lab2blinky();
 
 	while (1) {
