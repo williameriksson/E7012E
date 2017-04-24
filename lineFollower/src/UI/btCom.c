@@ -45,9 +45,9 @@ int pidPoint = 0;
 
 int commandMode = 0;
 
-void sendReference (float reference, float error){
+void sendData(float data){
 	if (USART6->SR & USART_SR_TXE) {
-		USART6->DR = reference;
+		USART6->DR = data;
 	}
 }
 

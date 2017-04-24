@@ -7,3 +7,4 @@ lineFollower/*.launch
 lineFollower/*.ld
 lineFollower/.project
 lineFollower/src/syscalls.c
+lineFollower/src/tiny_printf.c

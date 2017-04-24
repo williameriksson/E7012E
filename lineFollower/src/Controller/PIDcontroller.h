@@ -1,6 +1,8 @@
 #ifndef CONTROLLER_PIDCONTROLLER_H_
 #define CONTROLLER_PIDCONTROLLER_H_
 
+#include "../UI/btCom.h"
+
 typedef struct {
 	float referencePoint; //reference point to control around
 	float Kp, Ki, Kd; //PID parameters

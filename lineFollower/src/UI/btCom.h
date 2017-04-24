@@ -10,6 +10,6 @@
 
 #include "stm32f4xx.h"
 
-void sendReference(float, float);
+void sendData(float);
 
 #endif /* UI_BTCOM_H_ */
