@@ -5,10 +5,13 @@
 #include "../SteeringControl/steeringControl.h"
 #include "../MotorControl/motorControl.h"
 #include "../LineSensor/lineSensorReader.h"
-#include "math.h"
+#include "PIDcontroller.h"
+#include <math.h>
 
 float DistanceTemp;
 float AdjustTemp;
+PID motorPID;
+PID steeringPID;
 
 void initControlLoopHandler(void);
 void setSpeed(float);

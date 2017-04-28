@@ -1,6 +1,5 @@
 #include "controlLoopHandler.h"
 
-PID motorPID, steeringPID;
 const int looptimeMotor = 50; //controller loop in ms
 const int looptimeSteering = 10;
 

@@ -27,5 +27,6 @@ int pullBuffer(CircularBUFFER*, int);
 
 int getBufferAverage(CircularBUFFER*);
 int majorityBuffer(CircularBUFFER*);
+void resetBuffer(CircularBUFFER*);
 
 #endif /*CIRCULARBUFFER*/

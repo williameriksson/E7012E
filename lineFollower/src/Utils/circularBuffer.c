@@ -8,12 +8,12 @@ void circularBufferInit(CircularBUFFER* buff, int i, int s) {
 }
 
 void pushBuffer (CircularBUFFER *buff, int value) {
+	buff->buffer[buff->indexPointer] = value;
 	if (buff->indexPointer == buff->size - 1) {
 		buff->indexPointer = 0;
 	} else {
 		buff->indexPointer += 1;
 	}
-	buff->buffer[buff->indexPointer] = value;
 }
 
 void fillBuffer (CircularBUFFER *buff, int value) {
@@ -60,6 +60,10 @@ int getBufferAverage(CircularBUFFER *buff) {
 		tmp += buff->buffer[i];
 	}
 	return (tmp / buff->size);
+}
+
+void resetBuffer(CircularBUFFER *buff) {
+	buff->indexPointer = 0;
 }
 
 

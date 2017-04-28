@@ -27,6 +27,13 @@ void changeReference(PID *controller, float newRef) {
 	controller->referencePoint = newRef;
 }
 
+void changeParameters(PID *controller, float P, float I, float D) {
+	controller->Kp = P;
+	controller->Ki = I;
+	controller->Kd = D;
+	resetPIDError(controller);
+}
+
 void resetPIDError(PID *controller) {
 	controller->integralError = 0.0f;
 	controller->previousError = 0.0f;

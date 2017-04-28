@@ -1,34 +1,32 @@
 #include "btCom.h"
+#include <string.h>
 
-#include "stdlib.h"
-//#include "stdbool.h"
-#include "string.h"
-
-
-#define BAUDRATE 9600
-#define USARTBUFFSIZE 16
-#define TUNE 1
-#define CONTROL 2
+CircularBUFFER recieveBuffer;
 
 
 void initUART () {
+	__disable_irq();
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 	RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
 	GPIOC->MODER |= GPIO_MODER_MODER7_1 | GPIO_MODER_MODER6_1;
 	GPIOC->AFR[0] |= (((uint8_t)0x08) << 24);
 	GPIOC->AFR[0] |= (((uint8_t)0x08) << 28);
 	USART6->CR1 |= USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
-	//USART6->CR1 |= USART_CR1_RXNEIE; //Enable UART RXNE Interrupt
+	USART6->CR1 |= USART_CR1_RXNEIE; //Enable UART RXNE Interrupt
 	//USART6->CR1 &= ~USART_CR1_TXEIE; //Disable UART TXE Interrupt
 	USART6->CR1 |= USART_CR1_UE; // Enable USART, word length defaults to 8 bits and 1 stop bit
 	USART6->CR1 |= USART_CR1_TE;
 	//USART6->CR1 |= USART_CR1_RE;
 	USART6->BRR |= 50000000L/BAUDRATE;
 
-//	NVIC_EnableIRQ(USART6_IRQn);
-//	NVIC_SetPriority(USART6_IRQn, 71);
+	NVIC_EnableIRQ(USART6_IRQn);
+	NVIC_SetPriority(USART6_IRQn, 71);
 	//Usart2Put(8);
 	//DMA_SxCR_EN;
+	__enable_irq();
+
+	circularBufferInit(&recieveBuffer, (uint8_t)0, (uint8_t)RECIEVE_BUFFERSIZE);
+	fillBuffer(&recieveBuffer, 0);
 }
 
 //void initDMAReq() {
@@ -37,52 +35,94 @@ void initUART () {
 //
 //}
 
-
-char number[5];
-int numPoint = 0;
-float pidParams[3];
-int pidPoint = 0;
-
-int commandMode = 0;
-
 void sendData(float data){
 	if (USART6->SR & USART_SR_TXE) {
 		USART6->DR = data;
 	}
 }
-
+//T:1.0:1.0:1.0:;
 void USART6_IRQHandler (void) {
-	if (USART6->SR & USART_SR_RXNE) {
-
+	uint8_t ch;
+	if(USART6->SR & USART_SR_RXNE) {
+		ch = (uint8_t) USART6->DR;
+		if((int)ch != ENDSTRING) {
+			pushBuffer(&recieveBuffer, ch);
+		}
+		else {
+			pushBuffer(&recieveBuffer, ch);
+			uint8_t commandString[recieveBuffer.indexPointer+1];
+			for(int i = 0; i < recieveBuffer.indexPointer; i++) {
+				commandString[i] = pullBuffer(&recieveBuffer, i-recieveBuffer.indexPointer);
+			}
+			runCommand(commandString);
+			resetBuffer(&recieveBuffer);
+		}
 	}
+}
 
+void runCommand(uint8_t *commandString) {
+	uint16_t command = (commandString[0] << 8) | (commandString[1]);
+	int i = 0;
+	while(i < recieveBuffer.indexPointer) {
+		char kek = commandString[i];
+//				char kek = pullBuffer(&recieveBuffer, i-recieveBuffer.indexPointer);
+		i++;
+	}
+	switch(command) {
+		case ASCII_TM: //Tuning PID motor params.
+			tunePID(&motorPID, commandString);
+			break;
+		case ASCII_TS: //Tuning PID steering params.
+			tunePID(&steeringPID, commandString);
+			break;
+		case ASCII_F: //PC fetching parameters.
+			break;
+	}
+}
+
+void tunePID(PID *controller, uint8_t *cmd) {
+	int index = 3;
+	float pidValues[3];
+	int pidPointer = 0;
+	while((int)cmd[index] != (int)ENDSTRING) {
+//	while(index < sizeof(*cmd)) {
+		char number[5];
+		int numPointer = 0;
+		while((int)cmd[index] != (int)DELIMITER) {
+			number[numPointer] = cmd[index];
+			index++;
+			numPointer++;
+		}
+		pidValues[pidPointer] = (float)atof(number);
+		index++;
+		pidPointer++;
+	}
+	changeParameters(controller, pidValues[0], pidValues[1], pidValues[2]);
 }
 
 //void USART6_IRQHandler (void) {
-//	char delimiter = ":"; //ascii 58
-//	char endstring = ";"; //ascii 59
 //	uint8_t ch;
 //	if (USART6->SR & USART_SR_RXNE){
-////		ch=(uint8_t)USART6->DR;
-////		if((int)ch == 84) { //ascii "T"
-////			commandMode = TUNE;
-////		}
-////		else if((int)ch == 67) { //ascii "C"
-////			commandMode = CONTROL;
-////		}
-////		else {
-////			switch(commandMode) {
-////				case TUNE:
-////					tunePID(ch);
-////					break;
-////				case CONTROL:
-////					controlCar(ch);
-////					break;
-////				default:
-////					break;
-////			}
-////		}
-////	}
+//		ch=(uint8_t)USART6->DR;
+//		if((int)ch == ASCII_T) { //ascii "T"
+//			commandMode = TUNE;
+//		}
+//		else if((int)ch == ASCII_C) { //ascii "C"
+//			commandMode = CONTROL;
+//		}
+//		else {
+//			switch(commandMode) {
+//				case TUNE:
+//					tunePID(ch);
+//					break;
+//				case CONTROL:
+//					controlCar(ch);
+//					break;
+//				default:
+//					break;
+//			}
+//		}
+//	}
 //	if (USART6->SR & USART_SR_TXE) {
 //	}
 //
@@ -91,18 +131,17 @@ void USART6_IRQHandler (void) {
 //}
 
 //void tunePID(uint8_t ch) {
-//	if((int)ch == 59) { // ";" recieved
+//	if((int)ch == ENDSTRING) { // ";" recieved
 //		pidPoint = 0;
 //		numPoint = 0;
 //		Kp = pidParams[0];
 //		Ki = pidParams[1];
 //		Kd = pidParams[2];
-//		USART6->DR = 84; //T
+//		USART6->DR = ASCII_T; //T
 //		resetPID();
 //		commandMode = 0;
 //	}
-//
-//	else if((int)ch == 58) { // ":" recieved
+//	else if((int)ch == DELIMITER) { // ":" recieved
 //		float pidValue = (float)atof(number);
 //
 //		pidParams[pidPoint] = pidValue;
