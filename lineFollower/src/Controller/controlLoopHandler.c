@@ -9,8 +9,8 @@ void initControlLoopHandler() {
 	DistanceTemp = 0.0f;
 	AdjustTemp = 0.0f;
 
-	initController(&motorPID, 0.5f, 2.0f, 0.01f, 0.1f, looptimeMotor); //enables PID for motor
-	initController(&steeringPID, 0.0f, 2.0f, 0.05f, 1250.0f, looptimeSteering); //enables PID for steering
+	initController(&motorPID, 0.5f, 2.0f, 0.01f, 1.0f, looptimeMotor); //enables PID for motor
+	initController(&steeringPID, 0.0f, 5.0f, 0.02f, 1250.0f, looptimeSteering); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
@@ -41,19 +41,35 @@ void runMotorControl() {
 	float adjustment = runController(&motorPID, speed);
 	adjustMotorPWM(adjustment);
 }
+
 int previousDistance = 0;
 void runSteeringControl() {
+	static int obstacleDetected = 0;
 	float distanceFromLine = getDistanceOffset();
 	if(distanceFromLine > (float)LINESENSORARRAY_SIZE/2) {
 		//has driven off the line.
-		distanceFromLine = previousDistance/abs(previousDistance) * 5.0f;
+		distanceFromLine = previousDistance/abs(previousDistance) * 500.0f;
 	}
 	else {
 		previousDistance = distanceFromLine;
 	}
 	float adjustment = runController(&steeringPID, distanceFromLine);
-	DistanceTemp = distanceFromLine;
-	AdjustTemp = adjustment;
+
+//	if (obstacleDistance <= obstacleThreshold && !obstacleDetected) {
+//		magnetTick = 0;
+//		obstacleDetected = 1;
+//	}
+//
+//	if (obstacleDetected) {
+//		if (magnetTick <= 13) {
+//			adjustment = 15000;
+//		} else if (magnetTick <= 26) {
+//			adjustment = -15000;
+//		} else {
+//			obstacleDetected = 0;
+//		}
+//	}
+
 	adjustSteeringPWM(adjustment);
 }
 

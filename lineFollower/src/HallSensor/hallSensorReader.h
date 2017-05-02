@@ -8,5 +8,5 @@
 void initHallSensor(void);
 
 float speed;
-
+int magnetTick;
 #endif /* HALLSENSOR_HALLSENSORREADER_H_ */

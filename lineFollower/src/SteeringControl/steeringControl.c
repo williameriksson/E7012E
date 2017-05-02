@@ -30,6 +30,7 @@ void initSteeringControl() {
 void adjustSteeringPWM(float amount) {
 	int pwAdjust = (int)amount;
 	int currentPW = 20000 - TIM3->CCR4 - 1;
+
 	if(currentPW + pwAdjust < steeringminPW) {
 		TIM3->CCR4 = 20000 - steeringminPW - 1;
 	}

@@ -5,6 +5,8 @@
 #include "../SteeringControl/steeringControl.h"
 #include "../MotorControl/motorControl.h"
 #include "../LineSensor/lineSensorReader.h"
+#include "../HallSensor/hallSensorReader.h"
+#include "../ObstacleSensor/obstacleSensor.h"
 #include "PIDcontroller.h"
 #include <math.h>
 
