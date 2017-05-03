@@ -3,6 +3,7 @@
 
 #include "stm32f4xx.h"
 #include "UI/userButton.h"
+#include "UI/btCom.h"
 #include "SteeringControl/steeringControl.h"
 #include "MotorControl/motorControl.h"
 #include "LineSensor/lineSensorReader.h"

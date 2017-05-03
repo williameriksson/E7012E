@@ -73,6 +73,7 @@ void runCommand(uint8_t *commandString) {
 			pushPIDparams(&motorPID, &steeringPID);
 			break;
 		case ASCII_CV:
+			changeVelocity(&motorPID, commandString);
 			break;
 	}
 }
@@ -83,7 +84,7 @@ void tunePID(PID *controller, uint8_t *cmd) {
 	int pidPointer = 0;
 	while((int)cmd[index] != (int)ENDSTRING) {
 //	while(index < sizeof(*cmd)) {
-		char number[5];
+		char number[6];
 		int numPointer = 0;
 		while((int)cmd[index] != (int)DELIMITER) {
 			number[numPointer] = cmd[index];
@@ -95,6 +96,18 @@ void tunePID(PID *controller, uint8_t *cmd) {
 		pidPointer++;
 	}
 	changeParameters(controller, pidValues[0], pidValues[1], pidValues[2]);
+}
+
+changeVelocity(PID *motorC, uint8_t *cmd) {
+	int index = 3;
+	char number[6];
+	int numPointer = 0;
+	while((int)cmd[index] != (int)ENDSTRING) {
+		number[numPointer] = cmd[index];
+		index++;
+		numPointer++;
+	}
+	changeReference(motorC, (float)atof(number));
 }
 
 void pushPIDparams(PID *motorC, PID *steeringC) {
@@ -122,6 +135,12 @@ void pushPIDparams(PID *motorC, PID *steeringC) {
 	ftoa(steeringC->Kd, sendString+indexer, 4);
 
 	sendString[(numSize * 7) - 1] = (char)ENDSTRING;
+
+	int j = 0;
+	while(j < 49) {
+
+		j++;
+	}
 
 	int i = 0;
 	while((i < 49)) {

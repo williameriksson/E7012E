@@ -9,7 +9,7 @@
 #include "../Utils/stringLib.h"
 
 #define BAUDRATE 9600
-#define RECIEVE_BUFFERSIZE 32
+#define RECIEVE_BUFFERSIZE 64
 #define TUNE 1
 #define CONTROL 2
 
@@ -26,5 +26,6 @@ void sendData(float);
 void runCommand(uint8_t*);
 void tunePID(PID*, uint8_t*);
 void pushPIDparams(PID*, PID*);
+void changeVelocity(PID*, uint8_t*);
 
 #endif /* UI_BTCOM_H_ */
