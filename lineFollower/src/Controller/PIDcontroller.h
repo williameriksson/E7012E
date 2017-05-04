@@ -13,7 +13,7 @@ typedef struct {
 	float betaLPF; //beta for LPF filter
 }PID;
 
-void initController(PID*, float, float, float, float, int);
+void initController(PID*, float, float, float, float, int, float);
 float runController(PID*, float);
 void changeReference(PID*, float);
 void changeParameters(PID*, float, float, float);
