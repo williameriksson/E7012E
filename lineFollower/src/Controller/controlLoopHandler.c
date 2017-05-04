@@ -9,8 +9,8 @@ void initControlLoopHandler() {
 	DistanceTemp = 0.0f;
 	AdjustTemp = 0.0f;
 
-	initController(&motorPID, 0.5f, 2.0f, 0.01f, 1.0f, looptimeMotor); //enables PID for motor
-	initController(&steeringPID, 0.0f, 5.0f, 0.02f, 1250.0f, looptimeSteering); //enables PID for steering
+	initController(&motorPID, 0.5f, 2.0f, 0.01f, 1.0f, looptimeMotor, 0.5f); //enables PID for motor
+	initController(&steeringPID, 0.0f, 5.0f, 0.02f, 1250.0f, looptimeSteering, 0.5f); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts

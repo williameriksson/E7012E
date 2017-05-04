@@ -1,7 +1,7 @@
 #include "PIDcontroller.h"
 
 //initializes the controller with specified reference and PID params.
-void initController(PID *controller, float ref, float Kp, float Ki, float Kd, int looptime) {
+void initController(PID *controller, float ref, float Kp, float Ki, float Kd, int looptime, float lpf) {
 	controller->referencePoint = ref;
 	controller->Kp = Kp;
 	controller->Ki = Ki;
@@ -9,6 +9,8 @@ void initController(PID *controller, float ref, float Kp, float Ki, float Kd, in
 	controller->integralError = 0.0f;
 	controller->previousError = 0.0f;
 	controller->looptime = looptime;
+	controller->prevFilteredSignal = 0.0f;
+	controller->betaLPF = lpf;
 }
 
 /*
@@ -16,7 +18,8 @@ void initController(PID *controller, float ref, float Kp, float Ki, float Kd, in
  */
 float runController(PID *controller, float currentValue) {
 	float error = (controller->referencePoint - currentValue);
-	float derivative = error - controller->previousError;
+	float filteredSignal = continuesLPF(controller->prevFilteredSignal, currentValue, controller->betaLPF);
+	float derivative = filteredSignal - controller->prevFilteredSignal;
 	float integral = controller->integralError + error;
 	float output = controller->Kp * error + (controller->Ki * integral * controller->looptime) + (controller->Kd * derivative /controller->looptime);
 	controller->previousError = error;
