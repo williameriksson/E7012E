@@ -27,17 +27,43 @@ void updateLineSensorArray() {
 	}
 }
 
+//float getDistanceOffset() {
+//	int maxSensorDistanceOffset = LINESENSORARRAY_SIZE / 2;
+//	int distanceFromCenter = 0;
+//	int activeSensorsCount = 0;
+//	for(int i = 0; i < LINESENSORARRAY_SIZE; i++) {
+//		if(lsr.values[i] == 1) {
+//			distanceFromCenter += maxSensorDistanceOffset - i;
+//			activeSensorsCount++;
+//		}
+//	}
+//	if(activeSensorsCount != 0) {
+//		return (float)distanceFromCenter / (float)activeSensorsCount;
+//	}
+//	else {
+//		return 5.0f;
+//	}
+//}
+
 float getDistanceOffset() {
-	int maxSensorDistanceOffset = LINESENSORARRAY_SIZE / 2;
 	int distanceFromCenter = 0;
 	int activeSensorsCount = 0;
-	for(int i = 0; i < LINESENSORARRAY_SIZE; i++) {
-		if(lsr.values[i] == 1) {
-			distanceFromCenter += maxSensorDistanceOffset - i;
+	for (int i = 0; i < 4; i++) {
+		if (lsr.values[i] == 1) {
+			distanceFromCenter += (int)pow((double)2, (double)(3-i));
 			activeSensorsCount++;
 		}
 	}
-	if(activeSensorsCount != 0) {
+	if (lsr.values[4] == 1) {
+		activeSensorsCount++;
+	}
+	for (int i = 0; i < 4; i++) {
+		if (lsr.values[5+i] == 1) {
+			distanceFromCenter -= (int)pow((double)2, (double)i);
+			activeSensorsCount++;
+		}
+	}
+	if (activeSensorsCount != 0) {
 		return (float)distanceFromCenter / (float)activeSensorsCount;
 	}
 	else {
