@@ -21,10 +21,10 @@ float runController(PID *controller, float currentValue) {
 	float filteredSignal = continuesLPF(controller->prevFilteredSignal, currentValue, controller->betaLPF);
 	controller->integralError = controller->integralError + error;
 	controller->previousError = error;
-	float derivative = filteredSignal - controller->prevFilteredSignal;
+	float derivative = controller->prevFilteredSignal - filteredSignal;
 	controller->prevFilteredSignal = filteredSignal;
 	float integral = controller->integralError;
-	float output = controller->Kp * error + (controller->Ki * integral * (controller->looptime / 1000)) + (controller->Kd * derivative / (controller->looptime / 1000));
+	float output = controller->Kp * error + (controller->Ki * integral * ((float)controller->looptime / 1000.0f)) + (controller->Kd * derivative / ((float)controller->looptime / 1000.0f));
 	return output;
 }
 

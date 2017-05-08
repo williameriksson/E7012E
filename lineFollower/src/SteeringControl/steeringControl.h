@@ -4,7 +4,7 @@
 #include "stm32f4xx.h"
 
 void initSteeringControl(void);
-void setSteering(float);
+int setSteering(float);
 void adjustSteeringPWM(float);
 
 

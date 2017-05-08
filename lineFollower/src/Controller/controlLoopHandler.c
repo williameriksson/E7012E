@@ -1,14 +1,14 @@
 #include "controlLoopHandler.h"
 
 const int looptimeMotor = 50; //controller loop in ms
-const int looptimeSteering = 100;
+const int looptimeSteering = 20;
 
 void initControlLoopHandler() {
 	//Controller and timer below
 	__disable_irq();
 
 	initController(&motorPID, 0.5f, 2.0f, 0.01f, 1.0f, looptimeMotor, 0.75f); //enables PID for motor
-	initController(&steeringPID, 0.0f, 2.0f, 20.0f, 50.0f, looptimeSteering, 0.3f); //enables PID for steering
+	initController(&steeringPID, 0.0f, 3.0f, 0.1f, 3.5f, looptimeSteering, 0.8f); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
@@ -40,17 +40,22 @@ void runMotorControl() {
 	adjustMotorPWM(adjustment);
 }
 
+float adjustTemp;
+float feedForwardTemp;
 int previousDistance = 0;
 void runSteeringControl() {
 	static int obstacleDetected = 0;
 	float distanceFromLine = getDistanceOffset();
 	if(distanceFromLine > (float)LINESENSORARRAY_SIZE/2) {
 		//has driven off the line.
-		distanceFromLine = previousDistance/abs(previousDistance) * 500.0f;
+		distanceFromLine = previousDistance/abs(previousDistance) * 10.0f;
 	}
 	else {
 		previousDistance = distanceFromLine;
 	}
+
+	float feedForwardAngle = 6.14f * distanceFromLine; // Angle in degrees
+	int feedForwardAdjustment = setSteering(feedForwardAngle); // Get the PW value difference
 	float adjustment = runController(&steeringPID, distanceFromLine);
 
 //	if (obstacleDistance <= obstacleThreshold && !obstacleDetected) {
@@ -67,8 +72,11 @@ void runSteeringControl() {
 //			obstacleDetected = 0;
 //		}
 //	}
-
+	adjustTemp = adjustment;
+	feedForwardTemp = (float)feedForwardAdjustment;
+	//adjustSteeringPWM(adjustment + (float)feedForwardAdjustment);
 	adjustSteeringPWM(adjustment);
+	//adjustSteeringPWM(-(float)feedForwardAdjustment);
 }
 
 void TIM4_IRQHandler(void) {
