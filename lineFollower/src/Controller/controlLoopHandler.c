@@ -1,16 +1,14 @@
 #include "controlLoopHandler.h"
 
 const int looptimeMotor = 50; //controller loop in ms
-const int looptimeSteering = 10;
+const int looptimeSteering = 100;
 
 void initControlLoopHandler() {
 	//Controller and timer below
 	__disable_irq();
-	DistanceTemp = 0.0f;
-	AdjustTemp = 0.0f;
 
-	initController(&motorPID, 0.5f, 2.0f, 0.01f, 1.0f, looptimeMotor, 0.5f); //enables PID for motor
-	initController(&steeringPID, 0.0f, 5.0f, 0.02f, 10.0f, looptimeSteering, 0.5f); //enables PID for steering
+	initController(&motorPID, 0.5f, 2.0f, 0.01f, 1.0f, looptimeMotor, 0.75f); //enables PID for motor
+	initController(&steeringPID, 0.0f, 2.0f, 20.0f, 50.0f, looptimeSteering, 0.3f); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts

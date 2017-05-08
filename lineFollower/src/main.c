@@ -3,14 +3,13 @@
 int main(void)
 {
 
-		initSteeringControl();
-//		initHallSensor();
-//		initUserButton();
-
-//  initMotorControl();
+	initSteeringControl();
+	initHallSensor();
+//	initUserButton();
+	initMotorControl();
     initLineSensorReader();
     initControlLoopHandler();
-//	lab2blinky();
+    initUART();
 
 	while (1) {
 

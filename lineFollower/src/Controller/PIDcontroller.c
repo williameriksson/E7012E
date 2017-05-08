@@ -19,10 +19,12 @@ void initController(PID *controller, float ref, float Kp, float Ki, float Kd, in
 float runController(PID *controller, float currentValue) {
 	float error = (controller->referencePoint - currentValue);
 	float filteredSignal = continuesLPF(controller->prevFilteredSignal, currentValue, controller->betaLPF);
-	float derivative = filteredSignal - controller->prevFilteredSignal;
-	float integral = controller->integralError + error;
-	float output = controller->Kp * error + (controller->Ki * integral * controller->looptime) + (controller->Kd * derivative /controller->looptime);
+	controller->integralError = controller->integralError + error;
 	controller->previousError = error;
+	float derivative = filteredSignal - controller->prevFilteredSignal;
+	controller->prevFilteredSignal = filteredSignal;
+	float integral = controller->integralError;
+	float output = controller->Kp * error + (controller->Ki * integral * (controller->looptime / 1000)) + (controller->Kd * derivative / (controller->looptime / 1000));
 	return output;
 }
 
@@ -40,5 +42,6 @@ void changeParameters(PID *controller, float P, float I, float D) {
 void resetPIDError(PID *controller) {
 	controller->integralError = 0.0f;
 	controller->previousError = 0.0f;
+	controller->prevFilteredSignal = 0.0f;
 }
 
