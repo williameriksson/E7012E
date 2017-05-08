@@ -7,8 +7,8 @@ void initControlLoopHandler() {
 	//Controller and timer below
 	__disable_irq();
 
-	initController(&motorPID, 0.5f, 2.0f, 0.01f, 1.0f, looptimeMotor, 0.75f); //enables PID for motor
-	initController(&steeringPID, 0.0f, 3.0f, 0.1f, 3.5f, looptimeSteering, 0.8f); //enables PID for steering
+	initController(&motorPID, 0.8f, 2.0f, 0.01f, 2.0f, looptimeMotor, 0.75f); //enables PID for motor
+	initController(&steeringPID, 0.0f, 3.0f, 0.1f, 100.0f, looptimeSteering, 0.8f); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
@@ -54,7 +54,7 @@ void runSteeringControl() {
 		previousDistance = distanceFromLine;
 	}
 
-	float feedForwardAngle = 6.14f * distanceFromLine; // Angle in degrees
+	float feedForwardAngle = (-1.0f) * 6.14f * distanceFromLine; // Angle in degrees
 	int feedForwardAdjustment = setSteering(feedForwardAngle); // Get the PW value difference
 	float adjustment = runController(&steeringPID, distanceFromLine);
 
@@ -74,9 +74,9 @@ void runSteeringControl() {
 //	}
 	adjustTemp = adjustment;
 	feedForwardTemp = (float)feedForwardAdjustment;
-	//adjustSteeringPWM(adjustment + (float)feedForwardAdjustment);
-	adjustSteeringPWM(adjustment);
-	//adjustSteeringPWM(-(float)feedForwardAdjustment);
+	adjustSteeringPWM(adjustment + (float)feedForwardAdjustment);
+	//adjustSteeringPWM(adjustment);
+	//adjustSteeringPWM((float)feedForwardAdjustment);
 }
 
 void TIM4_IRQHandler(void) {
