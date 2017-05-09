@@ -32,6 +32,10 @@ void changeReference(PID *controller, float newRef) {
 	controller->referencePoint = newRef;
 }
 
+void changeLowpassBeta(PID *controller, float newBeta) {
+	controller->betaLPF = newBeta;
+}
+
 void changeParameters(PID *controller, float P, float I, float D) {
 	controller->Kp = P;
 	controller->Ki = I;
