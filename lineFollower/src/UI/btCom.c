@@ -68,6 +68,12 @@ void runCommand(uint8_t *commandString) {
 		case ASCII_SV: //Send velocity
 			sendVelocity();
 			break;
+		case ASCII_S0:
+			stopControllers();
+			break;
+		case ASCII_S1:
+			startControllers();
+			break;
 	}
 }
 

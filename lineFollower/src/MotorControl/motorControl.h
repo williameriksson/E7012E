@@ -7,5 +7,6 @@
 
 void initMotorControl(void);
 void adjustMotorPWM(float);
+void resetMotorPWM();
 
 #endif /* MOTORCONTROL_H_ */

@@ -1,4 +1,4 @@
-#include <HallSensor/hallSensorReader.h>
+#include "hallSensorReader.h"
 
 
 
@@ -14,6 +14,7 @@ void initHallSensor() {
 	circularBufferInit(&hallBuffer, 0, 4);
 	magnetTick = 0;
 	speed = 0.0;
+	traveledDistance = 0.0f;
 	//fillBuffer(&directionBuffer, 1);
 	fillBuffer(&hallBuffer, 65000);
 
@@ -55,7 +56,7 @@ void TIM1_TRG_COM_TIM11_IRQHandler () {
 		//speed = (2.0f * 10000.0f) / (2.0f * (float)filteredValue);
 		speed = usToMpsEightM(filteredValue);
 		magnetTick++;
-		//traveledDistance += speed * ((float)diff / 10000.0f);
+		traveledDistance += 0.20420348f;
 		TIM11->CNT = 0;
 		TIM11->SR &= ~(TIM_SR_CC1IF); // Clear capture flag
 	}

@@ -16,6 +16,8 @@ PID motorPID;
 PID steeringPID;
 
 void initControlLoopHandler(void);
+void stopControllers();
+void startControllers();
 void setSpeed(float);
 void runMotorControl(void);
 void runSteeringControl(void);

@@ -11,6 +11,8 @@
 #define BAUDRATE 9600
 #define RECIEVE_BUFFERSIZE 80
 
+#define ASCII_S0 0x5330 //stop
+#define ASCII_S1 0x5331 //start
 #define ASCII_TM 0x544D //Tune Motor controller
 #define ASCII_TS 0x5453 //Tune Servo controller
 #define ASCII_F0 0x4630 //Triggers sending of PID params.

@@ -5,12 +5,12 @@ void initObstacleSensor() {
 	__disable_irq();
 	obstacleDistance = 250.0f;
 	obstacleThreshold = 50.0f;
-	circularBufferInit(&obstacleBuffer, 0, 3);
-	fillBuffer(&obstacleBuffer, 1000000);
+	circularBufferInit(&obstacleBuffer, 0, 5);
+	fillBuffer(&obstacleBuffer, 15000);
 
 
 	RCC->APB2ENR |= RCC_APB2ENR_TIM10EN; // Enable clock for TIM10
-	TIM10->PSC = 100-1; // Prescale to 1Mhz
+	TIM10->PSC = 10000-1; // Prescale to 10kHz
 	TIM10->ARR = 0xFFFF; // Auto reload at max
 	TIM10->CR1 |= TIM_CR1_CEN; // Enable TIM11
 
@@ -47,7 +47,7 @@ void EXTI4_IRQHandler (void) {
 			}
 			pushBuffer(&obstacleBuffer, duration);
 			int averageDuration = getBufferAverage(&obstacleBuffer);
-			obstacleDistance = ((float)averageDuration / 147.0f) * 2.54f; // 147 uS per inch
+			obstacleDistance = ((float)averageDuration / 1.47f) * 2.54f; // 147 uS per cm
 			if (obstacleDistance <= obstacleThreshold) {
 				GPIOA->ODR |= (1 << 8);
 			} else {

@@ -9,4 +9,5 @@ void initHallSensor(void);
 
 float speed;
 int magnetTick;
+float traveledDistance;
 #endif /* HALLSENSOR_HALLSENSORREADER_H_ */

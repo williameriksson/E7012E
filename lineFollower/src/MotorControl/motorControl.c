@@ -41,3 +41,7 @@ void adjustMotorPWM(float amount) {
 		TIM3->CCR3 = 20000 - (currentPW + pwAdjust) - 1;
 	}
 }
+
+void resetMotorPWM() {
+	TIM3->CCR3 = 20000 - neutralPW - 1;
+}
