@@ -16,10 +16,12 @@ void initController(PID *controller, float ref, float Kp, float Ki, float Kd, in
 /*
  * Calculates the control-effort required based on current value.
  */
-float runController(PID *controller, float currentValue) {
+float runController(PID *controller, float currentValue, int isSaturated) {
 	float error = (controller->referencePoint - currentValue);
 	float filteredSignal = continuesLPF(controller->prevFilteredSignal, currentValue, controller->betaLPF);
-	controller->integralError = controller->integralError + error;
+	if(!isSaturated) {
+		controller->integralError = controller->integralError + error;
+	}
 	controller->previousError = error;
 	float derivative = controller->prevFilteredSignal - filteredSignal;
 	controller->prevFilteredSignal = filteredSignal;

@@ -10,8 +10,8 @@ void initControlLoopHandler() {
 	__disable_irq();
 
 	enableController = 1;
-	initController(&motorPID, 0.5f, 2.0f, 0.01f, 2.0f, looptimeMotor, 0.75f); //enables PID for motor
-	initController(&steeringPID, 0.0f, 3.0f, 0.1f, 100.0f, looptimeSteering, 0.8f); //enables PID for steering
+	initController(&motorPID, 1.0f, 2.0f, 0.01f, 2.0f, looptimeMotor, 0.75f); //enables PID for motor
+	initController(&steeringPID, 0.0f, 3.0f, 0.2f, 100.0f, looptimeSteering, 0.8f); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
@@ -50,7 +50,7 @@ void setSpeed(float mps) {
 }
 
 void runMotorControl() {
-	float adjustment = runController(&motorPID, speed);
+	float adjustment = runController(&motorPID, speed, 0);
 	adjustMotorPWM(adjustment);
 }
 
@@ -70,23 +70,25 @@ void runSteeringControl() {
 
 	float feedForwardAngle = (-1.0f) * 6.14f * distanceFromLine; // Angle in degrees
 	int feedForwardAdjustment = setSteering(feedForwardAngle); // Get the PW value difference
-	float adjustment = runController(&steeringPID, distanceFromLine);
+	float adjustment = runController(&steeringPID, distanceFromLine, isSaturatedSteering);
 
-	if (obstacleDistance <= obstacleThreshold && !obstacleDetected && traveledDistance >= 0.5f) {
-		magnetTick = 0;
-		obstacleDetected = 1;
-	}
-
-	if (obstacleDetected) {
-		feedForwardAdjustment = 0.0f;
-		if (magnetTick <= 13) {
-			adjustment = 15000;
-		} else if (magnetTick <= 26) {
-			adjustment = -15000;
-		} else {
-			obstacleDetected = 0;
-		}
-	}
+//	if (obstacleDistance <= obstacleThreshold && !obstacleDetected && traveledDistance >= 0.5f) {
+//		magnetTick = 0;
+//		obstacleDetected = 1;
+//	}
+//
+//	if (obstacleDetected) {
+//		if (magnetTick <= 20) {
+//			adjustment = 15000;
+//			feedForwardAdjustment = 0.0f;
+//		}
+////		else if (magnetTick <= 26) {
+////			adjustment = -15000;
+////		}
+//		else {
+//			obstacleDetected = 0;
+//		}
+//	}
 	adjustTemp = adjustment;
 	feedForwardTemp = (float)feedForwardAdjustment;
 	adjustSteeringPWM(adjustment + (float)feedForwardAdjustment);

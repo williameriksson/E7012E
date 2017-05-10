@@ -26,6 +26,7 @@ void initSteeringControl() {
 	TIM3->CR1 |= TIM_CR1_CEN; //Start timer
 	__enable_irq();
 
+	isSaturatedSteering = 0;
 }
 void adjustSteeringPWM(float amount) {
 	int pwAdjust = (int)amount;
@@ -33,12 +34,15 @@ void adjustSteeringPWM(float amount) {
 
 	if(currentPW + pwAdjust < steeringminPW) {
 		TIM3->CCR4 = 20000 - steeringminPW - 1;
+		isSaturatedSteering = 1;
 	}
 	else if(currentPW + pwAdjust > steeringmaxPW) {
 		TIM3->CCR4 = 20000 - steeringmaxPW - 1;
+		isSaturatedSteering = 1;
 	}
 	else {
 		TIM3->CCR4 = 20000 - (currentPW + pwAdjust) - 1;
+		isSaturatedSteering = 0;
 	}
 }
 

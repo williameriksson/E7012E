@@ -4,7 +4,7 @@ CircularBUFFER obstacleBuffer;
 void initObstacleSensor() {
 	__disable_irq();
 	obstacleDistance = 250.0f;
-	obstacleThreshold = 50.0f;
+	obstacleThreshold = 70.0f;
 	circularBufferInit(&obstacleBuffer, 0, 5);
 	fillBuffer(&obstacleBuffer, 15000);
 

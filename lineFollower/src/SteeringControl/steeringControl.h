@@ -7,5 +7,6 @@ void initSteeringControl(void);
 int setSteering(float);
 void adjustSteeringPWM(float);
 
+int isSaturatedSteering;
 
 #endif /* STEERINGCONTROL_H_ */

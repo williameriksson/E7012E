@@ -14,7 +14,7 @@ typedef struct {
 }PID;
 
 void initController(PID*, float, float, float, float, int, float);
-float runController(PID*, float);
+float runController(PID*, float, int);
 void changeReference(PID*, float);
 void changeLowpassBeta(PID*, float);
 void changeParameters(PID*, float, float, float);
