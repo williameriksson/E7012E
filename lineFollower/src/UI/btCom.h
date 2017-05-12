@@ -7,6 +7,8 @@
 #include "../Controller/PIDcontroller.h"
 #include "../Controller/controlLoopHandler.h"
 #include "../Utils/stringLib.h"
+#include "../Utils/cobs.h"
+#include "../Utils/floatLib.h"
 
 #define BAUDRATE 9600
 #define RECIEVE_BUFFERSIZE 80
@@ -21,11 +23,15 @@
 #define ASCII_LM 0x4C4D //Sets the Lowpass beta for Motor controller
 #define ASCII_LS 0x4C53 //Sets the Lowpass beta for Steering controller
 #define ASCII_SV 0x5346 //Triggers sending of velocity (speed)
-#define DELIMITER 58 //ascii ":"
-#define ENDSTRING 59 //ascii ";"
+#define ASCII_SS 0x5353 //Triggers
+//
+//#define DELIMITER 58 //ascii ":"
+//#define ENDSTRING 59 //ascii ";"
+
+#define END_OF_PACKET 0x00
 
 void initUART(void);
-void sendData(char*, int);
+void sendData(uint8_t*, int);
 void runCommand(uint8_t*);
 void tunePID(PID*, uint8_t*);
 void tunePIDlowpassBeta(PID*, uint8_t*);

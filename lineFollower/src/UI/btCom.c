@@ -1,7 +1,9 @@
 #include "btCom.h"
 #include <string.h>
 
-CircularBUFFER recieveBuffer;
+//CircularBUFFER recieveBuffer;
+uint8_t indata[RECIEVE_BUFFERSIZE];
+int indata_index;
 
 void initUART () {
 	__disable_irq();
@@ -20,32 +22,33 @@ void initUART () {
 	NVIC_SetPriority(USART6_IRQn, 71);
 	__enable_irq();
 
-	circularBufferInit(&recieveBuffer, (uint8_t)0, (uint8_t)RECIEVE_BUFFERSIZE);
-	fillBuffer(&recieveBuffer, 0);
+//	circularBufferInit(&recieveBuffer, (uint8_t)0, (uint8_t)RECIEVE_BUFFERSIZE);
+//	fillBuffer(&recieveBuffer, 0);
+	indata_index = 0;
 }
 
-//TM:1.0:1.0:1.0:;
+
 void USART6_IRQHandler (void) {
 	uint8_t ch;
 	if(USART6->SR & USART_SR_RXNE) {
 		ch = (uint8_t) USART6->DR;
-		if((int)ch != ENDSTRING) {
-			pushBuffer(&recieveBuffer, ch);
+		USART6->SR &= ~USART_SR_RXNE;
+		if((int)ch != (int)END_OF_PACKET) {
+			indata[indata_index] = ch;
+			indata_index++;
 		}
 		else {
-			pushBuffer(&recieveBuffer, ch);
-			uint8_t commandString[recieveBuffer.indexPointer+1];
-			for(int i = 0; i < recieveBuffer.indexPointer; i++) {
-				commandString[i] = pullBuffer(&recieveBuffer, i-recieveBuffer.indexPointer);
-			}
-			runCommand(commandString);
-			resetBuffer(&recieveBuffer);
+			indata[indata_index] = ch;
+			uint8_t decoded[indata_index-1];
+			unStuffData(indata, indata_index+1, decoded);
+			runCommand(decoded);
+			indata_index = 0;
 		}
 	}
 }
 
 void runCommand(uint8_t *commandString) {
-	uint16_t command = (commandString[0] << 8) | (commandString[1]); //extracts the 2 first chars of commandString (for instruction interpretation)
+	uint16_t command = (commandString[0] << 8) | (commandString[1]); //extracts the 2 first bytes of commandString (for instruction interpretation)
 	switch(command) {
 		case ASCII_TM: //Tuning PID motor params.
 			tunePID(&motorPID, commandString);
@@ -59,10 +62,10 @@ void runCommand(uint8_t *commandString) {
 		case ASCII_CV: //Change velocity
 			changeVelocity(&motorPID, commandString);
 			break;
-		case ASCII_LM: //Change lowpass beta for motor cont.
+		case ASCII_LM: //Change lowpass beta for motor controller.
 			tunePIDlowpassBeta(&motorPID, commandString);
 			break;
-		case ASCII_LS: //Change lowpass beta for steering cont.
+		case ASCII_LS: //Change lowpass beta for steering controller.
 			tunePIDlowpassBeta(&steeringPID, commandString);
 			break;
 		case ASCII_SV: //Send velocity
@@ -77,92 +80,58 @@ void runCommand(uint8_t *commandString) {
 	}
 }
 
+//tunePID recieves parameters on the format PID (concatenated floats (12 bytes total))
 void tunePID(PID *controller, uint8_t *cmd) {
-	int index = 3;
+	int index = 2;
 	float pidValues[3];
-	int pidPointer = 0;
-	while((int)cmd[index] != (int)ENDSTRING) {
-		char number[6];
-		int numPointer = 0;
-		while((int)cmd[index] != (int)DELIMITER) {
-			number[numPointer] = cmd[index];
-			index++;
-			numPointer++;
-		}
-		pidValues[pidPointer] = (float)atof(number);
-		index++;
-		pidPointer++;
-	}
+	byteArrayToFloat(cmd+index, 12, pidValues);
 	changeParameters(controller, pidValues[0], pidValues[1], pidValues[2]);
 }
 
 void tunePIDlowpassBeta(PID *controller, uint8_t *cmd) {
-	int index = 3;
-	char number[6];
-	int numPointer = 0;
-	while((int)cmd[index] != (int)ENDSTRING) {
-		number[numPointer] = cmd[index];
-		index++;
-		numPointer++;
-	}
-	changeLowpassBeta(controller, (float)atof(number));
+	int index = 2;
+	float lowpassBeta;
+	byteArrayToFloat(cmd+index, 4, &lowpassBeta);
+	changeLowpassBeta(controller, lowpassBeta);
 }
 
 void changeVelocity(PID *motorC, uint8_t *cmd) {
-	int index = 3;
-	char number[6];
-	int numPointer = 0;
-	while((int)cmd[index] != (int)ENDSTRING) {
-		number[numPointer] = cmd[index];
-		index++;
-		numPointer++;
-	}
-	changeReference(motorC, (float)atof(number));
+	int index = 2;
+	float newVelocity;
+	byteArrayToFloat(cmd+index, 4, &newVelocity);
+	changeReference(motorC, newVelocity);
 }
 
 void sendVelocity() {
-	char sendString[6];
-	ftoa(speed, sendString, 6);
-	sendData(sendString, 6);
+	uint8_t unencoded[4];
+	uint8_t encoded[6];
+	floatToByteArray(&speed, 4, unencoded);
+	stuffData(unencoded, 4, encoded);
+	sendData(encoded, 6);
 }
-//formats data according to
-//SETSPEED:P:I:D:MOTOR_LPFBETA:P:I:D:STEER:LPFBETA;
+
 void pushPIDparams(PID *motorC, PID *steeringC) {
-	int numSize = 7;
-	char sendString[63];
-	ftoa(motorC->referencePoint, sendString, 4);
-	sendString[numSize * 1 - 1] = (char)DELIMITER;
-	int indexer = (numSize * 1);
-	ftoa(motorC->Kp, sendString+indexer, 4);
-	sendString[numSize * 2 - 1] = (char)DELIMITER;
-	indexer += numSize;
-	ftoa(motorC->Ki, sendString+indexer, 4);
-	sendString[numSize * 3 - 1] = (char)DELIMITER;
-	indexer += numSize;
-	ftoa(motorC->Kd, sendString+indexer, 4);
-	sendString[numSize * 4 - 1] = (char)DELIMITER;
-	indexer += numSize;
-	ftoa(motorC->betaLPF, sendString+indexer, 4);
+	int dataSize = 9;
+	float rawData[dataSize];
+	uint8_t unencoded[dataSize*4];
+	uint8_t encoded[(dataSize*4)+2];
 
-	sendString[numSize * 5 - 1] = (char)DELIMITER;
-	indexer += numSize;
-	ftoa(steeringC->Kp, sendString+indexer, 4);
-	sendString[numSize * 6 - 1] = (char)DELIMITER;
-	indexer += numSize;
-	ftoa(steeringC->Ki, sendString+indexer, 4);
-	sendString[numSize * 7 - 1] = (char)DELIMITER;
-	indexer += numSize;
-	ftoa(steeringC->Kd, sendString+indexer, 4);
-	sendString[numSize * 8 - 1] = (char)DELIMITER;
-	indexer += numSize;
-	ftoa(steeringC->betaLPF, sendString+indexer, 4);
+	rawData[0] = motorC->referencePoint;
+	rawData[1] = motorC->Kp;
+	rawData[2] = motorC->Ki;
+	rawData[3] = motorC->Kd;
+	rawData[4] = motorC->betaLPF;
+	rawData[5] = steeringC->Kp;
+	rawData[6] = steeringC->Ki;
+	rawData[7] = steeringC->Kd;
+	rawData[8] = steeringC->betaLPF;
 
-	sendString[(numSize * 9) - 1] = (char)ENDSTRING;
-
-	sendData(sendString, 63);
+	floatToByteArray(rawData, 9, unencoded);
+	stuffData(unencoded, dataSize*4, encoded);
+	sendData(encoded, (dataSize*4)+2);
 }
 
-void sendData(char *sendData, int size) {
+void sendData(uint8_t *sendData, int size) {
 	int i = 0;
 	while((i < size)) {
 		USART6->DR = sendData[i];
