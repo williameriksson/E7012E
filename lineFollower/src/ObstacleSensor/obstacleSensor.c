@@ -33,6 +33,14 @@ float getDistance() {
  return 0.0;
 }
 
+float getObstacleThreshhold() {
+	return obstacleThreshold;
+}
+
+void setObstacleThreshhold(float newValue) {
+	obstacleThreshold = newValue;
+}
+
 void EXTI4_IRQHandler (void) {
 	static int startTime = 0;
 

@@ -56,7 +56,7 @@ void TIM1_TRG_COM_TIM11_IRQHandler () {
 		//speed = (2.0f * 10000.0f) / (2.0f * (float)filteredValue);
 		speed = usToMpsEightM(filteredValue);
 		magnetTick++;
-		traveledDistance += 0.20420348f;
+		traveledDistance += 0.20420348f/8; //the distance traveled per magnettick in centimeters
 		TIM11->CNT = 0;
 		TIM11->SR &= ~(TIM_SR_CC1IF); // Clear capture flag
 	}

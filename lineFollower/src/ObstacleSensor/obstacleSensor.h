@@ -8,6 +8,8 @@ float obstacleDistance;
 float obstacleThreshold;
 void initObstacleSensor(void);
 float getDistance(void);
+void setObstacleThreshhold(float);
+float getObstacleThreshhold();
 
 
 #endif /* OBSTACLESENSOR_OBSTACLESENSOR_H_ */

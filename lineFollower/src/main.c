@@ -9,6 +9,7 @@ int main(void)
 	initMotorControl();
     initLineSensorReader();
     initControlLoopHandler();
+    initObstacleSensor();
     initUART();
 
 	while (1) {

@@ -1,5 +1,5 @@
 #include "btCom.h"
-#include <string.h>
+
 
 //CircularBUFFER recieveBuffer;
 uint8_t indata[RECIEVE_BUFFERSIZE];
@@ -71,11 +71,38 @@ void runCommand(uint8_t *commandString) {
 		case ASCII_SV: //Send velocity
 			sendVelocity();
 			break;
+		case ASCII_EM: //error motor
+			sendPIDerror(&motorPID);
+			break;
+		case ASCII_ES: //error steering
+			sendPIDerror(&steeringPID);
+			break;
+		case ASCII_OM: //output motor
+			sendPIDoutput(&motorPID);
+			break;
+		case ASCII_OS: //output steering
+			sendPIDoutput(&steeringPID);
+			break;
+		case ASCII_EO: //error & output all
+			sendPIDErrOut(&steeringPID, &motorPID);
+			break;
+		case ASCII_OD: //obstaclesensor distance tuning
+			changeObstacleDistanceThreshhold(commandString);
+			break;
+		case ASCII_OT: //obstaclesensor time tuning
+			changeObstacleAvoidanceTime(commandString);
+			break;
+		case ASCII_FF: //sets feedforward multiplier
+			tuneFeedForward(commandString);
+			break;
 		case ASCII_S0:
 			stopControllers();
 			break;
 		case ASCII_S1:
 			startControllers();
+			break;
+		case ASCII_TO:
+			toggleObstacleSensor();
 			break;
 	}
 }
@@ -102,6 +129,27 @@ void changeVelocity(PID *motorC, uint8_t *cmd) {
 	changeReference(motorC, newVelocity);
 }
 
+void changeObstacleDistanceThreshhold(uint8_t *cmd) {
+	int index = 2;
+	float newThreshhold;
+	byteArrayToFloat(cmd+index, 4, &newThreshhold);
+	setObstacleThreshhold(newThreshhold);
+}
+
+void changeObstacleAvoidanceTime(uint8_t *cmd) {
+	int index = 2;
+	float newTime;
+	byteArrayToFloat(cmd+index, 4, &newTime);
+	setObstacleAvoidanceTimer(newTime);
+}
+
+void tuneFeedForward(uint8_t *cmd) {
+	int index = 2;
+	float newConstant;
+	byteArrayToFloat(cmd+index, 4, &newConstant);
+	setFeedforwardConstant(newConstant);
+}
+
 void sendVelocity() {
 	uint8_t unencoded[4];
 	uint8_t encoded[6];
@@ -110,8 +158,35 @@ void sendVelocity() {
 	sendData(encoded, 6);
 }
 
+void sendPIDerror(PID *controller) {
+	uint8_t unencoded[4];
+	uint8_t encoded[6];
+	floatToByteArray(&controller->previousError, 4, unencoded);
+	stuffData(unencoded, 4, encoded);
+	sendData(encoded, 6);
+}
+
+void sendPIDoutput(PID *controller) {
+	uint8_t unencoded[4];
+	uint8_t encoded[6];
+	floatToByteArray(&controller->previousOutput, 4, unencoded);
+	stuffData(unencoded, 4, encoded);
+	sendData(encoded, 6);
+}
+
+void sendPIDErrOut(PID *steering, PID *motor) {
+	uint8_t unencoded[8];
+	uint8_t encoded[10];
+	float data[2];
+	data[0] = steering->previousError;
+	data[1] = totalAdjustment;
+	floatToByteArray(data, 2, unencoded);
+	stuffData(unencoded, 8, encoded);
+	sendData(encoded, 10);
+}
+
 void pushPIDparams(PID *motorC, PID *steeringC) {
-	int dataSize = 9;
+	int dataSize = 12;
 	float rawData[dataSize];
 	uint8_t unencoded[dataSize*4];
 	uint8_t encoded[(dataSize*4)+2];
@@ -125,8 +200,11 @@ void pushPIDparams(PID *motorC, PID *steeringC) {
 	rawData[6] = steeringC->Ki;
 	rawData[7] = steeringC->Kd;
 	rawData[8] = steeringC->betaLPF;
+	rawData[9] = getFeedforwardConstant();
+	rawData[10] = getObstacleThreshhold();
+	rawData[11] = getObstacleAvoidanceTimer();
 
-	floatToByteArray(rawData, 9, unencoded);
+	floatToByteArray(rawData, dataSize, unencoded);
 	stuffData(unencoded, dataSize*4, encoded);
 	sendData(encoded, (dataSize*4)+2);
 }

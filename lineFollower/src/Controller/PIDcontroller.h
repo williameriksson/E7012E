@@ -11,6 +11,7 @@ typedef struct {
 	int looptime; //time (in ms) between controller runs
 	float prevFilteredSignal;
 	float betaLPF; //beta for LPF filter
+	float previousOutput;
 }PID;
 
 void initController(PID*, float, float, float, float, int, float);

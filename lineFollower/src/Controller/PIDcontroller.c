@@ -11,6 +11,7 @@ void initController(PID *controller, float ref, float Kp, float Ki, float Kd, in
 	controller->looptime = looptime;
 	controller->prevFilteredSignal = 0.0f;
 	controller->betaLPF = lpf;
+	controller->previousOutput = 0.0f;
 }
 
 /*
@@ -27,6 +28,7 @@ float runController(PID *controller, float currentValue, int isSaturated) {
 	controller->prevFilteredSignal = filteredSignal;
 	float integral = controller->integralError;
 	float output = controller->Kp * error + (controller->Ki * integral * ((float)controller->looptime / 1000.0f)) + (controller->Kd * derivative / ((float)controller->looptime / 1000.0f));
+	controller->previousOutput = output;
 	return output;
 }
 
