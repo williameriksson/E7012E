@@ -10,12 +10,12 @@ void initControlLoopHandler() {
 	__disable_irq();
 
 	enableController = 1;
-	magnetTickThreshhold = 20;
+	magnetTickThreshhold = 8;
 	totalAdjustment = 0.0f;
 	FFmodifier = 6.14;
 	obstacleToggle = 0;
 	initController(&motorPID, 0.5f, 2.0f, 0.01f, 2.0f, looptimeMotor, 0.75f); //enables PID for motor
-	initController(&steeringPID, 0.0f, 3.0f, 0.2f, 100.0f, looptimeSteering, 0.8f); //enables PID for steering
+	initController(&steeringPID, 0.0f, 3.0f, 0.0f, 100.0f, looptimeSteering, 0.95f); //enables PID for steering
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; //enables TIM4 timer
 	TIM4->DIER |= TIM_DIER_UIE; //enables update interrupts
@@ -74,8 +74,8 @@ void runMotorControl() {
 	adjustMotorPWM(adjustment);
 }
 
-void toggleObstacleSensor() {
-	obstacleToggle = !obstacleToggle;
+void toggleObstacleSensor(int status) {
+	obstacleToggle = status;
 }
 
 float adjustTemp;

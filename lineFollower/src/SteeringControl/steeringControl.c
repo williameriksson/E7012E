@@ -1,8 +1,8 @@
 #include "steeringControl.h"
 
-const int steeringminPW = 1200; //1.3 ms pulse width
+const int steeringminPW = 1100; //1.3 ms pulse width
 const int steeringneutralPW = 1500; //1.5ms pulse width
-const int steeringmaxPW = 1800; //1.7 ms pulse width
+const int steeringmaxPW = 1900; //1.7 ms pulse width
 const float maxSteeringAngle = 30.0; //the angular span between center and max right/left steering. TODO:figure this out
 
 void initSteeringControl() {

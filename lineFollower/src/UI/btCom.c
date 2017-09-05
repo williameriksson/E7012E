@@ -102,7 +102,7 @@ void runCommand(uint8_t *commandString) {
 			startControllers();
 			break;
 		case ASCII_TO:
-			toggleObstacleSensor();
+			setObstacleDetection(commandString);
 			break;
 	}
 }
@@ -141,6 +141,14 @@ void changeObstacleAvoidanceTime(uint8_t *cmd) {
 	float newTime;
 	byteArrayToFloat(cmd+index, 4, &newTime);
 	setObstacleAvoidanceTimer(newTime);
+}
+
+void setObstacleDetection(uint8_t *cmd) {
+	int index = 2;
+	float status;
+	byteArrayToFloat(cmd+index, 4, &status);
+	int temp = (int)status;
+	toggleObstacleSensor(temp);
 }
 
 void tuneFeedForward(uint8_t *cmd) {

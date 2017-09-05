@@ -46,6 +46,7 @@ void pushPIDparams(PID*, PID*);
 void changeVelocity(PID*, uint8_t*);
 void changeObstacleDistanceThreshhold(uint8_t*);
 void changeObstacleAvoidanceTime(uint8_t*);
+void setObstacleDetection(uint8_t*);
 void tuneFeedForward(uint8_t*);
 void sendVelocity();
 void sendPIDerror(PID*);
